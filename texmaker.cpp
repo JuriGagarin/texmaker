@@ -845,6 +845,8 @@ splitter3->restoreState(splitter3state);
 }
 
 
+checkForNewVersion();
+
 
 ShowOutputView(false);
 ShowStructView(false);
@@ -903,7 +905,6 @@ if (autosave)
     connect(autosaveTimer, SIGNAL(timeout()), this, SLOT(fileBackupAll()));
     autosaveTimer->start(600000);
     }
-
 }
 
 Texmaker::~Texmaker(){
@@ -9309,7 +9310,7 @@ void Texmaker::HelpAbout()
 
 void Texmaker::CheckVersion()
 {
- VersionDialog *verDlg = new VersionDialog(this);
+ VersionDialog *verDlg = new VersionDialog(checker, this);
  verDlg->exec();
 }
 
@@ -9775,6 +9776,14 @@ for ( int i = 1; i < argc; ++i )
 //setWindowState(Qt::WindowMinimized);
 //setWindowState(windowState() & ~Qt::WindowMinimized | Qt::WindowActive);
 //show();
+}
+
+void Texmaker::checkForNewVersion()
+{
+    //TODO Implement here
+    //TODO connect signals
+    //TODO move to thread?
+//    checker.checkForNewVersion();
 }
 ////////////////// VIEW ////////////////
 

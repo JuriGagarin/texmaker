@@ -55,6 +55,7 @@
 #include "sourceview.h"
 #include "encodingprober/qencodingprober.h"
 #include "scandialog.h"
+#include "updatechecker.h"
 
 
 
@@ -84,6 +85,7 @@ void insertFromCommandLine(const QString &entity);
 void onOtherInstanceMessage(const QString &);  // For messages for the single instance
 
 private:
+void checkForNewVersion();
 void setupMenus();
 void setupToolBars();
 void createStatusBar();
@@ -100,6 +102,8 @@ QString outputName(QString finame,QString extension);
 QString outputBaseName(QString finame);
 bool gtkSession();
 void setMasterDocument(const QString &fn);
+
+UpdateChecker checker;
 
 int untitled_id;
 
