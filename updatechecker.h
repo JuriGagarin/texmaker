@@ -7,6 +7,7 @@
 #include <QtNetwork/QNetworkReply>
 #include <QTimer>
 #include <QDebug>
+#include <QDateTime>
 #include <QDesktopServices>
 #include "texmakerversion.h"
 
@@ -14,7 +15,7 @@ class UpdateChecker : public QObject
 {
     Q_OBJECT
 public:
-    explicit UpdateChecker(QObject *parent = 0);
+    explicit UpdateChecker(int updateInterval, QDateTime dateLastChecked, QObject *parent = 0);
 
     void setTimeout(unsigned int timeout);
     unsigned int getTimeout() const;
@@ -35,15 +36,19 @@ public:
      */
     bool isErrorPresent() const;
 
+    const QDateTime& getDateLastChecked() const;
+
+    bool isUpdateRequired() const;
+
     bool hasBeenChecked() const;
 
     static void openDownloadPage();
 
 signals:
     void availableWebVersion(TexmakerVersion version);
-    void newVersionAvailable(TexmakerVersion version);
+    void newVersionAvailable();
     void currentVersionIsLatest();
-    void error(QNetworkReply::NetworkError error);
+    void error(QNetworkReply::NetworkError error, QString errorDescription);
 
 public slots:
     /**
@@ -55,13 +60,19 @@ public slots:
      */
     void stopVersionCheck();
 
+    void checkForNewVersionIfRequired();
+
+    /**
+     * @brief gotoDownloadPage same as openDownloadPage, but as a slot
+     * @see openDownloadPage
+     */
     void gotoDownloadPage();
 
 private slots:
     void processWebResult();
 
 protected:
-    virtual void setLatestError(QNetworkReply::NetworkError networkError, bool autoFireSignal = true);
+    virtual void setLatestError(QNetworkReply::NetworkError networkError, QString errorDescription = "", bool autoFireSignal = true);
 
 private:
     TexmakerVersion _currentVersion;
@@ -70,8 +81,12 @@ private:
     QNetworkReply       * _reply;
     QTimer _timer;
     QNetworkReply::NetworkError _latestError;
+    QString _latestErrorDescription;
     unsigned int _timeout;
     bool _checked;
+
+    QDateTime _lastChecked;
+    int _updateInterval;
 
 };
 

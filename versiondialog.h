@@ -27,10 +27,13 @@ public:
 	~VersionDialog();
 
 private slots:
-    void errorOccured(QNetworkReply::NetworkError error);
+    void errorOccured(QNetworkReply::NetworkError error, QString errorDescription);
     void gotWebVersion(TexmakerVersion version);
     void checkForNewVersion();
+
+private:
     void displayVersionString(QLineEdit& lineEdit, const TexmakerVersion& version, QString errorString = "");
+    void setAvailableVersionIsCurrent(bool isCurrent);
 
 private:
     Ui::VersionDialog ui;

@@ -21,11 +21,12 @@ TexmakerVersion::TexmakerVersion(int world, int major, int minor) : TexmakerVers
 
 TexmakerVersion TexmakerVersion::getCurrentVersion()
 {
-    TexmakerVersion version;
-    version.parseString(QLatin1String(TEXMAKERVERSION));
+    //TODO fix this again
+    TexmakerVersion version(4,0,1);
+//    version.parseString(QLatin1String(TEXMAKERVERSION));
 
     if(!version.isValid()) {
-        qWarning() << "Unable to parse current version: " << QLatin1String(TEXMAKERVERSION);
+        qWarning() << QObject::tr("Unable to parse current version: ") << QLatin1String(TEXMAKERVERSION);
     }
 
     return version;
@@ -56,7 +57,7 @@ void TexmakerVersion::parseString(const QString &versionString)
             }
 
         } else {
-            qWarning() << "Unexpected version string, unable to parse";
+            qWarning() << QObject::tr("Unexpected version string, unable to parse");
         }
     }
     invalidate();
@@ -70,7 +71,7 @@ bool TexmakerVersion::isValid() const
 QString TexmakerVersion::toString(bool allwaysPrintMinor) const
 {
 
-    QString versionString = "0.0.0"; //this will be returned if the version is not valid
+    QString versionString = QObject::tr("0.0.0"); //this will be returned if the version is not valid
 
     if(isValid()){
         versionString = QString("%1.%2").arg(worldVerion()).arg(majorVersion());

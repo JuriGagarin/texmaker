@@ -844,10 +844,6 @@ splitter2->restoreState(splitter2state);
 splitter3->restoreState(splitter3state);
 }
 
-
-checkForNewVersion();
-
-
 ShowOutputView(false);
 ShowStructView(false);
 ShowFilesView(false);
@@ -899,6 +895,10 @@ stat3->setText(QString(" %1 ").arg(input_encoding));
 
 setAcceptDrops(true);
 connect(this, SIGNAL(windowActivated()),this, SLOT(mainWindowActivated()));
+
+//TODO right position?
+setupUpdateChecker();
+
 autosaveTimer = new QTimer(this);
 if (autosave)
     {
@@ -2408,6 +2408,16 @@ viewMenu->addAction(fileToolBar->toggleViewAction());
 viewMenu->addAction(editToolBar->toggleViewAction());
 //viewMenu->addAction(formatToolBar->toggleViewAction());
 viewMenu->addAction(runToolBar->toggleViewAction());
+}
+
+void Texmaker::setupUpdateChecker(bool checkForUpdate)
+{
+    checker = new UpdateChecker(updateFrequency, dateLastChecked, this);
+    //only intreseted in new versions, ignore errors
+    connect(checker, SIGNAL(newVersionAvailable()), this, SLOT(CheckVersion()));
+    if(checkForUpdate) {
+        QTimer::singleShot(10000, checker, SLOT(checkForNewVersionIfRequired()));
+    }
 }
 
 
@@ -4386,6 +4396,9 @@ lastDocument=config->value("Files/Last Document","").toString();
 lastTemplate=config->value("Files/Last Template","").toString();
 recentFilesList=config->value("Files/Recent Files New").toStringList();
 
+updateFrequency=config->value("Update/Frequency").toInt();
+dateLastChecked=config->value("Update/LastChecked").toDateTime();
+
 input_encoding=config->value("Files/Input Encoding","UTF-8").toString();
 UserMenuName[0]=config->value("User/Menu1","").toString();
 UserMenuTag[0]=config->value("User/Tag1","").toString();
@@ -4538,6 +4551,11 @@ colorVerbatim=config->value("Color/Verbatim",QColor("#9A4D00")).value<QColor>();
 colorTodo=config->value("Color/Todo",QColor("#FF0000")).value<QColor>();
 colorKeywordGraphic=config->value("Color/KeywordGraphic",QColor("#006699")).value<QColor>();
 colorNumberGraphic=config->value("Color/NumberGraphic",QColor("#660066")).value<QColor>();
+
+
+//TODO recheck
+dateLastChecked = config->value("Update/LastChecked", QDateTime::fromMSecsSinceEpoch(1000)).value<QDateTime>();
+updateFrequency = config->value("Update/Frequency", -1).value<int>(); //default is disabled (= 0), if >0 days since last check
 
 config->endGroup();
 }
@@ -4765,6 +4783,10 @@ config.setValue("Color/Verbatim",colorVerbatim);
 config.setValue("Color/Todo",colorTodo);
 config.setValue("Color/KeywordGraphic",colorKeywordGraphic);
 config.setValue("Color/NumberGraphic",colorNumberGraphic);
+
+//TODO recheck
+config.setValue("Update/LastChecked", (checker != NULL) ? checker->getDateLastChecked() : QDateTime::fromMSecsSinceEpoch(1000));
+config.setValue("Update/Frequency", updateFrequency);
 
 
 config.endGroup();
@@ -9310,8 +9332,9 @@ void Texmaker::HelpAbout()
 
 void Texmaker::CheckVersion()
 {
- VersionDialog *verDlg = new VersionDialog(checker, this);
- verDlg->exec();
+    disconnect(checker, SIGNAL(newVersionAvailable()), this, SLOT(CheckVersion()));
+    VersionDialog *verDlg = new VersionDialog(*checker, this);
+    verDlg->exec();
 }
 
 
@@ -9425,6 +9448,8 @@ confDlg->ui.shorttableWidget->horizontalHeader()->resizeSection( 0, 250 );
 confDlg->ui.shorttableWidget->verticalHeader()->hide();
 confDlg->ui.pushButtonToggleFocus->setText(keyToggleFocus);
 
+confDlg->ui.spinBoxUpdateCheckFrequency->setValue(updateFrequency);
+
 QTableWidgetItem *colorItem;
 
 colorItem= new QTableWidgetItem(colorBackground.name());
@@ -9491,6 +9516,8 @@ if (confDlg->exec())
 	}
 	ModifyShortcuts();
 	keyToggleFocus=confDlg->ui.pushButtonToggleFocus->text();
+
+    updateFrequency = confDlg->ui.spinBoxUpdateCheckFrequency->value();
 
 	if (confDlg->ui.radioButton1->isChecked()) quickmode=1;
 	if (confDlg->ui.radioButton2->isChecked()) quickmode=2;
@@ -9778,13 +9805,6 @@ for ( int i = 1; i < argc; ++i )
 //show();
 }
 
-void Texmaker::checkForNewVersion()
-{
-    //TODO Implement here
-    //TODO connect signals
-    //TODO move to thread?
-//    checker.checkForNewVersion();
-}
 ////////////////// VIEW ////////////////
 
 void Texmaker::gotoNextDocument()

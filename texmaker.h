@@ -85,9 +85,9 @@ void insertFromCommandLine(const QString &entity);
 void onOtherInstanceMessage(const QString &);  // For messages for the single instance
 
 private:
-void checkForNewVersion();
 void setupMenus();
 void setupToolBars();
+void setupUpdateChecker(bool checkForUpdate = true);
 void createStatusBar();
 bool FileAlreadyOpen(QString f);
 void closeEvent(QCloseEvent *e);
@@ -103,9 +103,9 @@ QString outputBaseName(QString finame);
 bool gtkSession();
 void setMasterDocument(const QString &fn);
 
-UpdateChecker checker;
-
 int untitled_id;
+
+UpdateChecker* checker;
 
 FilesMap filenames;
 KeysMap shortcuts, actionstext;
@@ -182,6 +182,9 @@ QString keyToggleFocus;
 QString extra_path;
 QString beamer_theme, beamer_size, beamer_encoding, beamer_author, beamer_babel;
 qreal lastScale;
+//update settings
+int updateFrequency;//TODO
+QDateTime dateLastChecked;//TODO
 //dialogs
 QPointer<ScanDialog> scanDialog;
 QPointer<Browser> browserWindow;
