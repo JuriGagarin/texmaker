@@ -52,7 +52,7 @@ const QDateTime& UpdateChecker::getDateLastChecked() const
     return _lastChecked;
 }
 
-bool UpdateChecker::isUpdateRequired() const
+bool UpdateChecker::isUpdateCheckRequired() const
 {
     if(_updateInterval == 0) {
         //this means, that auto update is disabled
@@ -93,7 +93,7 @@ void UpdateChecker::stopVersionCheck()
 
 void UpdateChecker::checkForNewVersionIfRequired()
 {
-    if(isUpdateRequired()) {
+    if(isUpdateCheckRequired()) {
         checkForNewVersion();
     }
 }
@@ -109,7 +109,6 @@ void UpdateChecker::processWebResult()
     if (QNetworkReply::NoError == _reply->error()) {
         _webVersion.parseString(QString(_reply->readAll()));
 
-//        qDebug() << "WebVersion: " << _webVersion.toString(true);
         if(_webVersion.isValid()) {
             emit availableWebVersion(_webVersion); //fire event because the web version is valid
             setLatestError(QNetworkReply::NoError);
@@ -133,7 +132,6 @@ void UpdateChecker::processWebResult()
 
 void UpdateChecker::setLatestError(QNetworkReply::NetworkError networkError, QString errorDescription, bool autoFireSignal)
 {
-//        qWarning() << "Unable to check for newer Version. Error: " << _reply->errorString();
     _latestError = networkError;
     _latestErrorDescription = errorDescription;
 

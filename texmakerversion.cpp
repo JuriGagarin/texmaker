@@ -21,9 +21,8 @@ TexmakerVersion::TexmakerVersion(int world, int major, int minor) : TexmakerVers
 
 TexmakerVersion TexmakerVersion::getCurrentVersion()
 {
-    //TODO fix this again
-    TexmakerVersion version(4,0,1);
-//    version.parseString(QLatin1String(TEXMAKERVERSION));
+    TexmakerVersion version;
+    version.parseString(QLatin1String(TEXMAKERVERSION));
 
     if(!version.isValid()) {
         qWarning() << QObject::tr("Unable to parse current version: ") << QLatin1String(TEXMAKERVERSION);
@@ -82,7 +81,7 @@ QString TexmakerVersion::toString(bool allwaysPrintMinor) const
     return versionString;
 }
 
-const QVector<int>& TexmakerVersion::getVersionNumber() const
+const QVector<int>& TexmakerVersion::getVersionNumbers() const
 {
     return _versionNumbers;
 }
@@ -115,8 +114,8 @@ bool operator< (const TexmakerVersion &v1, const TexmakerVersion &v2)
 
 bool operator> (const TexmakerVersion &v1, const TexmakerVersion &v2)
 {
-    const QVector<int>& num1 = v1.getVersionNumber();
-    const QVector<int>& num2 = v2.getVersionNumber();
+    const QVector<int>& num1 = v1.getVersionNumbers();
+    const QVector<int>& num2 = v2.getVersionNumbers();
 
     int i = 0;
 
@@ -142,7 +141,7 @@ bool operator>= (const TexmakerVersion &v1, const TexmakerVersion &v2)
 
 bool operator== (const TexmakerVersion &v1, const TexmakerVersion &v2)
 {
-    return v1.getVersionNumber() == v2.getVersionNumber();
+    return v1.getVersionNumbers() == v2.getVersionNumbers();
 }
 
 bool operator!= (const TexmakerVersion &v1, const TexmakerVersion &v2)
