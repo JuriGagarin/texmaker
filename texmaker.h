@@ -55,6 +55,7 @@
 #include "sourceview.h"
 #include "encodingprober/qencodingprober.h"
 #include "scandialog.h"
+#include "updatechecker.h"
 
 
 
@@ -86,6 +87,7 @@ void onOtherInstanceMessage(const QString &);  // For messages for the single in
 private:
 void setupMenus();
 void setupToolBars();
+void setupUpdateChecker(bool checkForUpdate = true);
 void createStatusBar();
 bool FileAlreadyOpen(QString f);
 void closeEvent(QCloseEvent *e);
@@ -102,6 +104,8 @@ bool gtkSession();
 void setMasterDocument(const QString &fn);
 
 int untitled_id;
+
+UpdateChecker* checker;
 
 FilesMap filenames;
 KeysMap shortcuts, actionstext;
@@ -178,6 +182,9 @@ QString keyToggleFocus;
 QString extra_path;
 QString beamer_theme, beamer_size, beamer_encoding, beamer_author, beamer_babel;
 qreal lastScale;
+//update settings
+int updateFrequency;//TODO
+QDateTime dateLastChecked;//TODO
 //dialogs
 QPointer<ScanDialog> scanDialog;
 QPointer<Browser> browserWindow;

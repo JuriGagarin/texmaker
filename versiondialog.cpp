@@ -10,50 +10,90 @@
  ***************************************************************************/
 
 #include "versiondialog.h"
+#include "texmakerversion.h"
+#include "updatechecker.h"
 
 #include <QtCore/QUrl>
 #include <QDesktopServices>
+#include <QDebug>
 
-VersionDialog::VersionDialog(QWidget *parent)
-    :QDialog( parent)
+
+
+VersionDialog::VersionDialog(UpdateChecker& checker, QWidget *parent)
+    :QDialog( parent), _updateChecker(checker)
 {
-ui.setupUi(this);
-timer.setSingleShot(true);
-connect(&timer, SIGNAL(timeout()), this, SLOT(stopChecker()));
-ui.lineEditCurrent->setText(QLatin1String(TEXMAKERVERSION));
-ui.lineEditAvailable->setText(QString::fromUtf8("?.?.?"));
-connect(ui.pushButtonDownload, SIGNAL( clicked() ), this, SLOT( gotoDownloadPage() ) );
-connect(ui.pushButtonCheck, SIGNAL( clicked() ), this, SLOT( launchChecker() ) );
+    ui.setupUi(this);
+
+    displayVersionString(*ui.lineEditCurrent, _updateChecker.getCurrentVersion());
+    setAvailableVersionIsCurrent(false);
+
+    connect(&_updateChecker, SIGNAL(error(QNetworkReply::NetworkError,QString)), this, SLOT(errorOccured(QNetworkReply::NetworkError,QString)));
+    connect(&_updateChecker, SIGNAL(availableWebVersion(TexmakerVersion)), this, SLOT(gotWebVersion(TexmakerVersion)));
+    connect(&_updateChecker, SIGNAL(newVersionAvailable()), this, SLOT(onNewVersionAvailable()));
+
+    QString errorString = "";
+
+    //maybe this is the first check or an error occured, so check again
+    if(!_updateChecker.hasBeenChecked() || (_updateChecker.hasBeenChecked() && _updateChecker.isErrorPresent())) {
+        errorString = QString::fromUtf8("?.?.?");
+        checkForNewVersion();
+    }
+    displayVersionString(*ui.lineEditAvailable, _updateChecker.getWebVersion(), errorString);
+    setAvailableVersionIsCurrent(_updateChecker.getWebVersion() == _updateChecker.getCurrentVersion());
+    if(_updateChecker.getWebVersion() > _updateChecker.getCurrentVersion()) {
+        onNewVersionAvailable();
+    }
+
+
+    connect(ui.pushButtonDownload, SIGNAL(clicked()), &_updateChecker, SLOT(gotoDownloadPage()));
+    connect(ui.pushButtonCheck, SIGNAL(clicked()), this, SLOT(checkForNewVersion()));
 }
 
 VersionDialog::~VersionDialog(){
 }
 
-void VersionDialog::gotoDownloadPage()
+void VersionDialog::errorOccured(QNetworkReply::NetworkError error, QString errorDescription)
 {
-QDesktopServices::openUrl(QUrl("http://www.xm1math.net/texmaker/download.html"));
+    ui.pushButtonCheck->setEnabled(true);
+    displayVersionString(*ui.lineEditAvailable, _updateChecker.getWebVersion());
+    ui.lineEditAvailable->setToolTip(errorDescription);
+    setAvailableVersionIsCurrent(false);
 }
 
-void VersionDialog::launchChecker()
+void VersionDialog::gotWebVersion(TexmakerVersion version)
 {
-ui.pushButtonCheck->setEnabled(false);
-timer.start(10000);
-reply = manager.get (  QNetworkRequest(QUrl("http://www.xm1math.net/texmaker/version.txt"))  );
-QObject::connect (reply, SIGNAL (finished()),this, SLOT(showResultChecker()));
+    ui.pushButtonCheck->setEnabled(true);
+    setAvailableVersionIsCurrent(version == _updateChecker.getCurrentVersion());
+    displayVersionString(*ui.lineEditAvailable, version);
 }
 
-void VersionDialog::showResultChecker()
+void VersionDialog::checkForNewVersion()
 {
-timer.stop();
-if (reply->error()) ui.lineEditAvailable->setText(tr("Error"));
-else ui.lineEditAvailable->setText(QString(reply->readAll()));
-ui.pushButtonCheck->setEnabled(true);
+    ui.lineEditAvailable->setToolTip("");
+    ui.pushButtonCheck->setEnabled(false);
+    _updateChecker.checkForNewVersion();
 }
 
-void VersionDialog::stopChecker()
+void VersionDialog::onNewVersionAvailable()
 {
-ui.lineEditAvailable->setText(tr("Error"));
-QObject::disconnect (reply, SIGNAL (finished()),this, SLOT(showResultChecker()));
-reply->abort();
-ui.pushButtonCheck->setEnabled(true);
+    ui.labelUpdateStatus->setText(tr("There is a new version available."));
+}
+
+void VersionDialog::displayVersionString(QLineEdit &lineEdit, const TexmakerVersion &version, QString errorString)
+{
+    if(version.isValid()) {
+        lineEdit.setText(version.toString());
+    } else {
+        lineEdit.setText(errorString.isEmpty() ? tr("Error") : errorString);
+    }
+}
+
+void VersionDialog::setAvailableVersionIsCurrent(bool isCurrent)
+{
+    ui.labelAvailableIsUpToDate->setVisible(isCurrent);
+    if(isCurrent) {
+        ui.labelUpdateStatus->setText(tr("Your version is up to date."));
+    } else {
+        ui.labelUpdateStatus->setText("");
+    }
 }

@@ -9,7 +9,7 @@ QT += xml webkitwidgets network widgets printsupport concurrent
 QT += xml webkit network
 }
 
-CONFIG	+= qt warn_off release
+CONFIG	+= qt warn_off debug
 TEXMAKERVERSION=4.1
 DEFINES += TEXMAKERVERSION=\\\"$${TEXMAKERVERSION}\\\"
 DEFINES += HAVE_SPLASH
@@ -141,7 +141,9 @@ HEADERS	+= texmaker.h \
 	encodingprober/nsSJISProber.h \
 	encodingprober/nsUniversalDetector.h \
 	encodingprober/qencodingprober.h \
-	encodingprober/UnicodeGroupProber.h 
+	encodingprober/UnicodeGroupProber.h \ 
+    texmakerversion.h \
+    updatechecker.h
 SOURCES	+= main.cpp \
 	geticon.cpp \
 	texmakerapp.cpp \
@@ -249,7 +251,9 @@ SOURCES	+= main.cpp \
 	encodingprober/nsSJISProber.cpp \
 	encodingprober/nsUniversalDetector.cpp \
 	encodingprober/qencodingprober.cpp \
-	encodingprober/UnicodeGroupProber.cpp
+	encodingprober/UnicodeGroupProber.cpp \
+    texmakerversion.cpp \
+    updatechecker.cpp
 RESOURCES += texmaker.qrc
 FORMS   += findwidget.ui\
 	gotolinewidget.ui \
