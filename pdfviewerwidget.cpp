@@ -342,8 +342,8 @@ if (scanner != NULL)
   synctex_scanner_free(scanner);
   scanner = NULL;
   }
-
-doc = Poppler::Document::load(fn);
+//BUG memory leak
+doc = Poppler::Document::load(fn); //this line is leaking memory
 if (pdfview->open(fn)) 
   {
 

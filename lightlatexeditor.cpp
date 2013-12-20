@@ -310,7 +310,7 @@ void LightLatexEditor::matchPar()
 QTextBlock textBlock = textCursor().block();
 BlockData *data = static_cast<BlockData *>( textBlock.userData() );
 if ( data ) {
-	QVector<ParenthesisInfo *> infos = data->parentheses();
+    const QVector<ParenthesisInfo *>& infos = data->parentheses();
 	int pos = textCursor().block().position();
 
 	for ( int i=0; i<infos.size(); ++i ) {
@@ -335,7 +335,7 @@ bool LightLatexEditor::matchLeftPar(	QTextBlock currentBlock, int index, int num
 {
 
 BlockData *data = static_cast<BlockData *>( currentBlock.userData() );
-QVector<ParenthesisInfo *> infos = data->parentheses();
+const QVector<ParenthesisInfo *>& infos = data->parentheses();
 int docPos = currentBlock.position();
 
 // Match in same line?
@@ -367,7 +367,7 @@ bool LightLatexEditor::matchRightPar(QTextBlock currentBlock, int index, int num
 {
 
 BlockData *data = static_cast<BlockData *>( currentBlock.userData() );
-QVector<ParenthesisInfo *> infos = data->parentheses();
+const QVector<ParenthesisInfo *>& infos = data->parentheses();
 int docPos = currentBlock.position();
 
 // Match in same line?
@@ -392,7 +392,7 @@ if ( currentBlock.isValid() ) {
 
 	// Recalculate correct index first
 	BlockData *data = static_cast<BlockData *>( currentBlock.userData() );
-	QVector<ParenthesisInfo *> infos = data->parentheses();
+    const QVector<ParenthesisInfo *>& infos = data->parentheses();
 
 	return matchRightPar( currentBlock, infos.size()-1, numRightPar );
 }

@@ -783,9 +783,8 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
 
     case CE_ToolBar:
         {
-            QRect rect = option->rect;
             bool horizontal = option->state & State_Horizontal;
-            rect = option->rect;
+            QRect rect = option->rect;
 
             // Map offset for global window gradient
             QPoint offset = widget->window()->mapToGlobal(option->rect.topLeft()) -

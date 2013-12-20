@@ -247,8 +247,7 @@ for( int i = 0; i < flist.count(); i++ )
 
 void SymbolListWidget::customContentsMenu( const QPoint &pos )
 {
-QTableWidgetItem* item= new QTableWidgetItem();
-item=this->itemAt(pos);
+QTableWidgetItem* item=this->itemAt(pos);
 if (item) 
 	{
 	addAct->setData(item->text());

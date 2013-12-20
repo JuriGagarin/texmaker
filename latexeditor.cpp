@@ -1024,10 +1024,10 @@ return result;
 
 void LatexEditor::replace( const QString &r,bool isRegExp, const QString &o)
 {
-int start;
 QTextCursor c = textCursor();
 if (c.hasSelection()) 
 	{
+	int start;
 	if (isRegExp)
 	  {
 	  QRegExp expr1(o);
@@ -1075,10 +1075,10 @@ if (line<=numoflines())
 
 void LatexEditor::commentSelection()
 {
-bool go=true;
 QTextCursor cur=textCursor();
 if (cur.hasSelection())
 	{
+	bool go=true;
 	int start=cur.selectionStart();
 	int end=cur.selectionEnd();
 	cur.setPosition(start,QTextCursor::MoveAnchor);
@@ -1095,10 +1095,10 @@ else cur.insertText("%");
 
 void LatexEditor::indentSelection()
 {
-bool go=true;
 QTextCursor cur=textCursor();
 if (cur.hasSelection())
 	{
+	bool go=true;
 	int start=cur.selectionStart();
 	int end=cur.selectionEnd();
 	cur.setPosition(start,QTextCursor::MoveAnchor);
@@ -1114,11 +1114,11 @@ if (cur.hasSelection())
 
 void LatexEditor::uncommentSelection()
 {
-bool go=true;
 int pos=0;
 QTextCursor cur=textCursor();
 if (cur.hasSelection())
 	{
+	bool go=true;
 	int start=cur.selectionStart();
 	int end=cur.selectionEnd();
 	cur.setPosition(start,QTextCursor::MoveAnchor);
@@ -1144,10 +1144,10 @@ if (cur.hasSelection())
 
 void LatexEditor::unindentSelection()
 {
-bool go=true;
 QTextCursor cur=textCursor();
 if (cur.hasSelection())
 	{
+	bool go=true;
 	int start=cur.selectionStart();
 	int end=cur.selectionEnd();
 	cur.setPosition(start,QTextCursor::MoveAnchor);
@@ -2236,7 +2236,7 @@ else
   BlockData *data = static_cast<BlockData *>( textBlock.userData() );
   if ( data ) 
     {
-    QVector<LatexBlockInfo *> infos = data->latexblocks();
+    const QVector<LatexBlockInfo *>& infos = data->latexblocks();
     int pos = textCursor().block().position();
     if (infos.size()==0) 
       {
@@ -2259,7 +2259,7 @@ bool LatexEditor::matchLeftLat(	QTextBlock currentBlock, int index, int numLeftL
 {
 
 BlockData *data = static_cast<BlockData *>( currentBlock.userData() );
-QVector<LatexBlockInfo *> infos = data->latexblocks();
+const QVector<LatexBlockInfo *>& infos = data->latexblocks();
 int docPos = currentBlock.position();
 
 // Match in same line?
@@ -2291,7 +2291,7 @@ bool LatexEditor::matchRightLat(QTextBlock currentBlock, int index, int numRight
 {
 
 BlockData *data = static_cast<BlockData *>( currentBlock.userData() );
-QVector<LatexBlockInfo *> infos = data->latexblocks();
+const QVector<LatexBlockInfo *>& infos = data->latexblocks();
 int docPos = currentBlock.position();
 
 // Match in same line?
@@ -2316,7 +2316,7 @@ if ( currentBlock.isValid() ) {
 
 	// Recalculate correct index first
 	BlockData *data = static_cast<BlockData *>( currentBlock.userData() );
-	QVector<LatexBlockInfo *> infos = data->latexblocks();
+    const QVector<LatexBlockInfo *>& infos = data->latexblocks();
 
 	return matchRightLat( currentBlock, infos.size()-1, numRightLat, epos );
 }
@@ -2347,7 +2347,8 @@ foldedLines.insert(start, end);
 ensureFinalNewLine();//Qt 4.7.1 bug
 for (int i = start + 1; i <= end; i++) {document()->findBlockByNumber(i).setVisible(false);}
 update();
-resizeEvent(new QResizeEvent(QSize(0, 0), size()));
+QResizeEvent event(QSize(0, 0), size());
+resizeEvent(&event);
 viewport()->update();
 emit updatelineWidget();
 ensureCursorVisible();
@@ -2369,7 +2370,8 @@ else document()->findBlockByNumber(i).setVisible(true);
 i++;
 }
 update();
-resizeEvent(new QResizeEvent(QSize(0, 0), size()));
+QResizeEvent event(QSize(0, 0), size());
+resizeEvent(&event);
 viewport()->update();
 emit updatelineWidget();
 ensureCursorVisible();
@@ -2595,6 +2597,8 @@ QMimeData *LatexEditor::createMimeDataFromSelection() const
         return mimeData;
     } else if (textCursor().hasSelection()) {
         QTextCursor cursor = textCursor();
+        //BUG memory leak. (detected via valgrind)
+        //QT doc info: If you reimplement this function, note that the ownership of the returned QMimeData object is passed to the caller.
         QMimeData *mimeData = new QMimeData;
 
         // Copy the selected text as plain text

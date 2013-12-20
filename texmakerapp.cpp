@@ -132,6 +132,8 @@ QSettings *config=new QSettings(QSettings::IniFormat,QSettings::UserScope,"xm1",
 #endif
 
 language=config->value("Language",QString(QLocale::system().name())).toString();
+
+delete config;
 }
 
 void TexmakerApp::SaveSettings()

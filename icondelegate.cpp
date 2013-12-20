@@ -129,6 +129,7 @@ void IconDelegate::drawDecoration(QPainter *painter, const QStyleOptionViewItem 
           }      
 	    #endif
             painter->drawPixmap(p, *pm);
+            delete pm;
         } else {
 QPixmap *pm=selected(pixmap, option.palette, true);
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
@@ -139,6 +140,7 @@ QPixmap *pm=selected(pixmap, option.palette, true);
             }      
 #endif
             painter->drawPixmap(p, *pm);
+            delete pm;
         }
     }
 }
@@ -344,6 +346,7 @@ QPixmap *IconDelegate::selected(const QPixmap &pixmap, const QPalette &palette, 
         painter.fillRect(0, 0, img.width(), img.height(), color);
         painter.end();
 
+        //BUG memory leak
         pm = new QPixmap(QPixmap::fromImage(img));
         QPixmapCache::insert(key, *pm);
     }

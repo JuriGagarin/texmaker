@@ -13,27 +13,35 @@
 #include "blockdata.h"
 
 
-QVector<ParenthesisInfo *> BlockData::parentheses() {
+BlockData::~BlockData()
+{
+    qDeleteAll(m_latexblocks);
+    qDeleteAll(m_parentheses);
+}
+
+const QVector<ParenthesisInfo *> &BlockData::parentheses() {
 	return m_parentheses;
 }
-QVector<LatexBlockInfo *> BlockData::latexblocks() {
+const QVector<LatexBlockInfo *> &BlockData::latexblocks() {
 	return m_latexblocks;
 }
 
 void BlockData::insertPar( ParenthesisInfo *info ) {
-	int i = 0;
-	while (
-		i < m_parentheses.size() &&
-		info->position > m_parentheses.at(i)->position )
-		++i;
-	m_parentheses.insert( i, info );
+    insertType(m_parentheses, info);
 }
 
 void BlockData::insertLat( LatexBlockInfo *info ) {
-	int i = 0;
-	while (
-		i < m_latexblocks.size() &&
-		info->position > m_latexblocks.at(i)->position )
-		++i;
-	m_latexblocks.insert( i, info );
+    insertType(m_latexblocks, info);
+}
+
+template <typename T>
+void BlockData::insertType(QVector<T*>& vec, T *info)
+{
+    int i = 0;
+    while (i < vec.size() &&
+        info->position > vec.at(i)->position )
+        ++i;
+    //TODO there may be a memory leak if vec[i] returns a valid pointer which will not get deleted
+    //I tried to do some checks but it had some side effects
+    vec.insert( i, info );
 }

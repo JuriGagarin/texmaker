@@ -183,8 +183,8 @@ QString extra_path;
 QString beamer_theme, beamer_size, beamer_encoding, beamer_author, beamer_babel;
 qreal lastScale;
 //update settings
-int updateFrequency;//TODO
-QDateTime dateLastChecked;//TODO
+int updateFrequency;
+QDateTime dateLastChecked;
 //dialogs
 QPointer<ScanDialog> scanDialog;
 QPointer<Browser> browserWindow;

@@ -44,11 +44,11 @@ QString item;
 int type;
 QTextCursor cursor;
 StructItem(int l, const QString& it, int t,const QTextCursor& curs): line(l),item(it),type(t),cursor(curs) { };
-bool operator==( const StructItem other ) const
+bool operator==( const StructItem& other ) const
     {
     return ((item==other.item) && (type==other.type));
     }
-bool operator<( const StructItem other ) const
+bool operator<( const StructItem& other ) const
     {
     return (item<other.item);
     }

@@ -55,8 +55,7 @@ for (int i = 0; i < ulist.count(); ++i)
 
 void UserTagsListWidget::customContentsMenu( const QPoint &pos )
 {
-QListWidgetItem* item= new QListWidgetItem();
-item=this->itemAt(pos);
+QListWidgetItem* item=this->itemAt(pos);
 if (item) 
 	{
 	//addAct->setData(item->text());

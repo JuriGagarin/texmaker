@@ -4553,11 +4553,12 @@ colorKeywordGraphic=config->value("Color/KeywordGraphic",QColor("#006699")).valu
 colorNumberGraphic=config->value("Color/NumberGraphic",QColor("#660066")).value<QColor>();
 
 
-//TODO recheck
 dateLastChecked = config->value("Update/LastChecked", QDateTime::fromMSecsSinceEpoch(1000)).value<QDateTime>();
 updateFrequency = config->value("Update/Frequency", -1).value<int>(); //default is disabled (= 0), if >0 days since last check
 
 config->endGroup();
+
+delete config;
 }
 
 void Texmaker::SaveSettings()
@@ -5813,7 +5814,7 @@ QString vs="";
 QString el="";
 QString tag;
 TabDialog *quickDlg = new TabDialog(this,"Tabular");
-QTableWidgetItem *item=new QTableWidgetItem();
+QTableWidgetItem *item;
 if ( quickDlg->exec() )
 	{
 	int y = quickDlg->ui.spinBoxRows->value();
@@ -5949,6 +5950,8 @@ if ( arrayDlg->exec() )
 	else tag +=QString(0x2022)+QString("\n\\end{")+env+"} ";
 	InsertTag(tag,0,0);
 	}
+
+delete item;
 }
 
 void Texmaker::QuickTabbing()
@@ -10185,6 +10188,9 @@ QFile userTagsfile(QCoreApplication::applicationDirPath()+"/completion.txt");
 #endif
 if (!tagsfile.open(QFile::ReadOnly)) model=new QStringListModel(completer);
 
+//BUG memory leak? (detected via valgrind)
+//qt doc info: Every setOverrideCursor() must eventually be followed by a corresponding restoreOverrideCursor(), otherwise the stack will never be emptied.
+// but restoreOverrideCursor gets called. so why is this leaking memory?
 QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 QStringList words;
 QString line;

@@ -1472,7 +1472,7 @@ h->setVisible(true);
 disconnect(verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(on_verticalScrollBar_valueChanged(int)));
 centerOn(h);
 connect(verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(on_verticalScrollBar_valueChanged(int)));
-
+delete h;
 }
 
 void DocumentView::on_syncpage(int index, const QPointF& pagePos)
